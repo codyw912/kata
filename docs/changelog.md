@@ -9,6 +9,10 @@ All notable changes to kata, grouped by release. Versioned releases start with
 
 ## Unreleased
 
+- Record every value when `kata close` repeats `--pr`, `--commit`, or `--test`.
+  Before, only the last value of each flag was kept, so a fix that landed in two
+  pull requests recorded only the second one.
+
 - Start date-driven work from `kata events --tail` or a hook when an issue's
   `scheduled_on` is reached. The daemon records one `issue.scheduled_reached`
   event per scheduled value, with the date's raw value, timezone, and UTC
