@@ -197,6 +197,20 @@ func TestCloseCmd_SugarEvidenceFlagsAreRepeatable(t *testing.T) {
 	}, payload.Evidence)
 }
 
+func TestCloseCmd_SugarEmptyPRRejected(t *testing.T) {
+	env, dir, _, ref := setupWorkspaceWithIssue(t, "test issue")
+	_, stderr, err := runCLIWithErr(t, env, dir,
+		"close", ref,
+		"--done",
+		"--message", "Fixed Safari callback double-submit and ran tests.",
+		"--pr", "")
+	require.Error(t, err)
+	assert.Contains(t, stderr, "pr requires non-empty url")
+
+	show := runCLI(t, env, dir, "show", ref, "--json")
+	assert.Contains(t, show, `"status":"open"`)
+}
+
 func TestCloseCmd_SugarDuplicateOf(t *testing.T) {
 	env, dir, pid, ref := setupWorkspaceWithIssue(t, "test issue")
 	target := createIssue(t, env, pid, "target")
