@@ -27,6 +27,7 @@ func TestErrorUsageCloseReasons(t *testing.T) {
 		{"duplicate reviewed path", []string{"--done", "--reviewed", "a", "--reviewed", "a"}, kindUsage, ExitUsage, "duplicate path"},
 		{"malformed evidence", []string{"--done", "--evidence", "broken"}, kindValidation, ExitValidation, "expected <type>:<value>"},
 		{"unknown evidence type", []string{"--done", "--evidence", "other:value"}, kindValidation, ExitValidation, "unknown type"},
+		{"empty pr value", []string{"--done", "--pr", ""}, kindInternal, ExitInternal, "refusing to auto-start daemon"},
 		{"empty issue reference", []string{"--done", "--evidence", "duplicate-of:"}, kindValidation, ExitValidation, "expected issue ref"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
