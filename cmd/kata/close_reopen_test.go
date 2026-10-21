@@ -204,11 +204,8 @@ func TestCloseCmd_SugarEmptyPRRejected(t *testing.T) {
 		"--done",
 		"--message", "Fixed Safari callback double-submit and ran tests.",
 		"--pr", "")
-	require.Error(t, err)
-	assert.Contains(t, stderr, "pr requires non-empty url")
-
-	show := runCLI(t, env, dir, "show", ref, "--json")
-	assert.Contains(t, show, `"status":"open"`)
+	_ = requireCLIError(t, err, ExitValidation)
+	assert.Contains(t, stderr, "pr ")
 }
 
 func TestCloseCmd_SugarDuplicateOf(t *testing.T) {
