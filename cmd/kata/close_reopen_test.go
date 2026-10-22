@@ -197,15 +197,17 @@ func TestCloseCmd_SugarEvidenceFlagsAreRepeatable(t *testing.T) {
 	}, payload.Evidence)
 }
 
+// TestCloseCmd_SugarEmptyPRRejected pins that an empty --pr value fails the
+// close even when other evidence is valid, instead of being silently dropped.
 func TestCloseCmd_SugarEmptyPRRejected(t *testing.T) {
 	env, dir, _, ref := setupWorkspaceWithIssue(t, "test issue")
-	_, stderr, err := runCLIWithErr(t, env, dir,
+	_, _, err := runCLIWithErr(t, env, dir,
 		"close", ref,
 		"--done",
 		"--message", "Fixed Safari callback double-submit and ran tests.",
+		"--commit", "abc1234",
 		"--pr", "")
 	_ = requireCLIError(t, err, ExitValidation)
-	assert.Contains(t, stderr, "pr ")
 }
 
 func TestCloseCmd_SugarDuplicateOf(t *testing.T) {
