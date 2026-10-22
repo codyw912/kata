@@ -1,7 +1,7 @@
 ---
 title: Changelog
 description: Release history for kata
-last_edited: 2026-10-20
+last_edited: 2026-10-21
 ---
 
 All notable changes to kata, grouped by release. Versioned releases start with
@@ -9,6 +9,37 @@ All notable changes to kata, grouped by release. Versioned releases start with
 
 ## Unreleased
 
+- Record every value when `kata close` repeats `--pr`, `--commit`, or `--test`.
+  Before, only the last value of each flag was kept, so a fix that landed in two
+  pull requests recorded only the second one. An empty value such as `--pr ""`
+  is now rejected like `--evidence pr:` instead of ignored.
+
+- Start date-driven work from `kata events --tail` or a hook when an issue's
+  `scheduled_on` is reached. The daemon records one `issue.scheduled_reached`
+  event per scheduled value, with the date's raw value, timezone, and UTC
+  instant, within 30 seconds of that instant while the daemon runs. Schedules
+  already overdue when you upgrade record no event. See
+  [Reached schedules](reference/cron.md#reached-schedules).
+- Keep a running local daemon up when an older `kata` binary runs a command.
+  Before, a binary that could not open the daemon's newer database stopped the
+  daemon anyway, failed to start its own, and left no daemon running. The
+  command now fails and names both versions or schemas so you can rerun it
+  with the newer binary. An older release binary also no longer downgrades a
+  newer release daemon. With PostgreSQL in validate mode, a binary whose schema
+  differs from the database's also leaves the daemon running and tells you to
+  run `kata storage postgres migrate` first. See
+  [Daemon and diagnostics](reference/cli.md#daemon-and-diagnostics).
+
+- Rebind or rejoin a spoke right after `kata federation leave` fails to reach
+  the hub, without `kata daemon restart`. The CLI now releases the leave it
+  prepared, even when the daemon's prepare response was lost, and the project
+  stays bound. A config-managed reservation keeps its leave marker until the
+  leave finishes. MCP agents release a prepared leave with the `abort` phase
+  of `kata.federation_leave`, passing the `preparation_id` they sent to
+  `prepare`. See
+  [Leaving a federation](operations/federation.md#leaving-a-federation).
+
+- Disable anonymous telemetry with `DO_NOT_TRACK` or any present `CI` variable, including in registered local profile daemons Kata autostarts. CLI, TUI, and MCP processes honor their own preferences when using an enabled daemon, including CLI and TUI action attribution. Only plain release versions send reports. See [Telemetry](reference/configuration.md#telemetry) for opt-outs and the shared field inventory.
 - Count a parent's open and total children from the browser snapshot's
   `collection_links` instead of listing issues. The counts match `child_counts`
   from `GET /api/v1/issues` for the same principal, an absent `child_counts`

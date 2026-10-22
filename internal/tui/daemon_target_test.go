@@ -944,7 +944,11 @@ func TestConnectResolvedLocalTargetRetryRefreshPreservesTargetToken(t *testing.T
 	})
 
 	t.Setenv("KATA_HOME", t.TempDir())
-	socket := filepath.Join(t.TempDir(), "fresh-kata.sock")
+	// This test name makes t.TempDir() exceed the macOS socket path limit.
+	socketDir, err := os.MkdirTemp("", "kata-tui-")
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = os.RemoveAll(socketDir) })
+	socket := filepath.Join(socketDir, "fresh-kata.sock")
 	ln, err := net.Listen("unix", socket)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = ln.Close() })
@@ -1042,7 +1046,7 @@ func TestBuildRunModelCarriesDaemonMetadata(t *testing.T) {
 		init:    bootInit{view: viewEmpty, scope: scope{empty: true}},
 	}
 
-	m := buildRunModel(Options{}, &Client{}, conn.init, conn)
+	m := buildRunModel(Options{}, NewClient("http://daemon.example", nil), conn.init, conn)
 
 	assert.Equal(t, "shared", m.activeDaemon.Name)
 	require.Len(t, m.daemonTargets, 2)
